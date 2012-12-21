@@ -11,5 +11,6 @@ setup(
     description='Python client for Google Cloud Messaging for Android (GCM)',
     long_description=open('README.md').read(),
     keywords='android gcm push notification google cloud messaging',
+    install_requires = ['requests'],
     tests_require = ['mock'],
 )

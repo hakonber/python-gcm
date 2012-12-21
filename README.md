@@ -1,3 +1,8 @@
+Fork notes
+-------------
+* Use requests instead of urrlib2 for HTTP requests.
+
+
 python-gcm
 ======================
 [![Build Status](https://secure.travis-ci.org/geeknam/python-gcm.png?branch=master)](http://travis-ci.org/geeknam/python-gcm)

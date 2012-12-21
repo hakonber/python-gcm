@@ -1,5 +1,5 @@
+import requests
 import urllib
-import urllib2
 import json
 from collections import defaultdict
 import time
@@ -65,10 +65,7 @@ class GCM(object):
             if isinstance(proxy,basestring):
                 protocol = url.split(':')[0]
                 proxy={protocol:proxy}
-
-            auth = urllib2.HTTPBasicAuthHandler()
-            opener = urllib2.build_opener(urllib2.ProxyHandler(proxy), auth, urllib2.HTTPHandler)
-            urllib2.install_opener(opener)
+        self.proxy = proxy
 
 
     def construct_payload(self, registration_ids, data=None, collapse_key=None,
@@ -133,23 +130,20 @@ class GCM(object):
 
         if not is_json:
             data = urllib.urlencode(data)
-        req = urllib2.Request(self.url, data, headers)
 
         try:
-            response = urllib2.urlopen(req).read()
-        except urllib2.HTTPError as e:
-            if e.code == 400:
-                raise GCMMalformedJsonException("The request could not be parsed as JSON")
-            elif e.code == 401:
-                raise GCMAuthenticationException("There was an error authenticating the sender account")
-            elif e.code == 503:
-                raise GCMUnavailableException("GCM service is unavailable")
-        except urllib2.URLError as e:
+            response = requests.post(self.url, data=data, headers=headers, proxies=self.proxy)
+        except requests.RequestException:
             raise GCMConnectionException("There was an internal error in the GCM server while trying to process the request")
 
-        if is_json:
-            response = json.loads(response)
-        return response
+        if response.status_code == 200:
+            return json.loads(response.text) if is_json else response.text
+        elif response.status_code == 400:
+            raise GCMMalformedJsonException("The request could not be parsed as JSON")
+        elif response.status_code == 401:
+            raise GCMAuthenticationException("There was an error authenticating the sender account")
+        else:
+            raise GCMUnavailableException("GCM service is unavailable")
 
     def raise_error(self, error):
         if error == 'InvalidRegistration':
