@@ -247,17 +247,20 @@ class GCM(object):
                 registration_ids, data, collapse_key,
                 delay_while_idle, time_to_live
             )
-            response = self.make_request(payload, is_json=True)
-            info = self.handle_json_response(response, registration_ids)
-
-            unsent_reg_ids = self.extract_unsent_reg_ids(info)
-            if unsent_reg_ids:
-                registration_ids = unsent_reg_ids
-                sleep_time = backoff / 2 + random.randrange(backoff)
-                time.sleep(float(sleep_time) / 1000)
-                if 2 * backoff < self.MAX_BACKOFF_DELAY:
-                    backoff *= 2
+            try:
+                response = self.make_request(payload, is_json=True)
+            except GCMUnavailableException:
+                info = {}
             else:
-                break
+                info = self.handle_json_response(response, registration_ids)
+                unsent_reg_ids = self.extract_unsent_reg_ids(info)
+                if unsent_reg_ids:
+                    registration_ids = unsent_reg_ids
+                else:
+                    return info
 
+            sleep_time = backoff / 2 + random.randrange(backoff)
+            time.sleep(float(sleep_time) / 1000)
+            if 2 * backoff < self.MAX_BACKOFF_DELAY:
+                backoff *= 2
         return info

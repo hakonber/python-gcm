@@ -1,6 +1,7 @@
 Fork notes
 -------------
 * Use requests instead of urrlib2 for HTTP requests.
+* Patched json_request() so that the retry logic is also used if we get a 50x status code from Google.
 
 
 python-gcm
