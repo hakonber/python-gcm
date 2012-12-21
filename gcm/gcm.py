@@ -186,10 +186,12 @@ class GCM(object):
         return info
 
     def extract_unsent_reg_ids(self, info):
-        if 'errors' in info and 'Unavailable' in info['errors']:
-            return info['errors']['Unavailable']
-        else:
-            return []
+        result = []
+        if 'errors' in info:
+            for error_type in ('Unavailable', 'InternalServerError'):
+                if error_type in info['errors']:
+                    result.extend(info['errors'][error_type])
+        return result
 
     def plaintext_request(self, registration_id, data=None, collapse_key=None,
                             delay_while_idle=False, time_to_live=None, retries=5):
