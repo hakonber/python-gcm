@@ -2,6 +2,7 @@ Fork notes
 -------------
 * Use requests instead of urrlib2 for HTTP requests.
 * Patched json_request() so that the retry logic is also used if we get a 50x status code from Google.
+* Added connection timeout (5 seconds, can be changed through the gcm.timeout property)
 
 
 python-gcm

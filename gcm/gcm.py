@@ -51,8 +51,9 @@ def group_response(response, registration_ids, key):
 class GCM(object):
 
     # Timeunit is milliseconds.
-    BACKOFF_INITIAL_DELAY = 1000;
-    MAX_BACKOFF_DELAY = 1024000;
+    BACKOFF_INITIAL_DELAY = 1000
+    MAX_BACKOFF_DELAY = 1024000
+    DEFAULT_TIMEOUT = 5000
 
     def __init__(self, api_key, url=GCM_URL, proxy=None):
         """ api_key : google api key
@@ -66,6 +67,7 @@ class GCM(object):
                 protocol = url.split(':')[0]
                 proxy={protocol:proxy}
         self.proxy = proxy
+        self.timeout = float(self.DEFAULT_TIMEOUT) / 1000
 
 
     def construct_payload(self, registration_ids, data=None, collapse_key=None,
@@ -132,7 +134,7 @@ class GCM(object):
             data = urllib.urlencode(data)
 
         try:
-            response = requests.post(self.url, data=data, headers=headers, proxies=self.proxy)
+            response = requests.post(self.url, data=data, headers=headers, proxies=self.proxy, timeout=self.timeout)
         except requests.RequestException:
             raise GCMConnectionException("There was an internal error in the GCM server while trying to process the request")
 
